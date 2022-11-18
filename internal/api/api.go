@@ -26,7 +26,7 @@ func (h Handler) GetOrderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reqbody := struct {
-		ID int `json:"id"`
+		Id int `json:"id"`
 	}{}
 
 	// data, _ := io.ReadAll(r.Body)
@@ -37,7 +37,7 @@ func (h Handler) GetOrderHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	order, err := h.svc.GetOrderByID(r.Context(), reqbody.ID)
+	order, err := h.svc.GetOrderByID(r.Context(), reqbody.Id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return

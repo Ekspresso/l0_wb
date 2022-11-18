@@ -19,7 +19,7 @@ func New(initSize int) *Cache {
 func (c *Cache) Set(u models.Order) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.m[u.ID] = u
+	c.m[u.Id] = u
 }
 
 func (c *Cache) Get(id int) (_ models.Order, exist bool) {
