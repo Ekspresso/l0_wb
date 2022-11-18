@@ -40,7 +40,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	_, err = conn.Subscribe("Order", h.CreateOrder)
+	_, err = conn.Subscribe("user", h.CreateOrder)
 	if err != nil {
 		log.Fatal(err)
 	}
