@@ -1,5 +1,6 @@
 package models
 
+//Основная модель поступающих данных
 type Order struct {
 	Id          int    `json:"id"`
 	OrderUID    string `json:"order_uid"`
@@ -52,6 +53,7 @@ type Order struct {
 	OofShard          string `json:"oof_shard"`
 }
 
+//Модель данных одного элемента Item
 type Item struct {
 	Id          int    `json:"id"`
 	ChrtID      int    `json:"chrt_id"`

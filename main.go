@@ -20,6 +20,7 @@ const (
 )
 
 func main() {
+	//Подключение к бд
 	db, err := sql.Open("pgx", dbConnStr)
 	if err != nil {
 		log.Fatal(err)
@@ -34,25 +35,31 @@ func main() {
 	}
 	h := api.New(svc)
 
+	//Подключение к серверу Nats-streaming
 	conn, err := stan.Connect("test-cluster", "lo", stan.NatsURL(stan.DefaultNatsURL))
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
+	//Подписка на канал "user"
 	_, err = conn.Subscribe("user", h.CreateOrder)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	//Обработка корневой страницы с формой запроса данных заказа по id
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "form.html")
 	})
 
+	//Обработка данных с формы
 	http.HandleFunc("/id-order", h.IdOrder)
 
+	//Обработка POST запросов с указанием id в json
 	http.HandleFunc("/get-order", h.GetOrderHandler)
 
+	//Определение адреса для общения с сервером.
 	if err = http.ListenAndServe("localhost:8080", nil); err != nil {
 		log.Fatal(err)
 	}

@@ -14,6 +14,7 @@ func New(db *sql.DB) DBClient {
 	return DBClient{db: db}
 }
 
+//Метод создания нового заказа в базе данных
 func (db *DBClient) CreateOrder(ctx context.Context, order models.Order) (models.Order, error) {
 	const q1 = `insert into public.orders(order_uid, track_number, entry, locale, internal_signature,
 		customer_id, delivery_service, shardkey, sm_id, date_created, oof_shard) values($1,
@@ -60,6 +61,7 @@ func (db *DBClient) CreateOrder(ctx context.Context, order models.Order) (models
 	return order, nil
 }
 
+//Метод получения всех данных заказа по id
 func (db *DBClient) GetOrderByID(ctx context.Context, id int) (models.Order, error) {
 	var order models.Order
 
@@ -117,6 +119,10 @@ func (db *DBClient) GetOrderByID(ctx context.Context, id int) (models.Order, err
 	return order, nil
 }
 
+//Метод получения списка всех заказов в бд. Не оптимален, т.к. к каждой таблице обращений столько, сколько в ней записей.
+//Можно реализовать за 1 обращение к каждой таблице, но тогда кода будет больше, чем в предыдущей функции.
+//Для этого сначала делается проход через rows по главной таблице с выборкой всех данных, с созданием слайса структур order, и заполнением этих структур данными
+//из главной таблицы. Затем делается ещё по 1 обращению к остальным таблицам по очереди с заполнением недостающих данных в order-структурах в слайсе.
 func (db *DBClient) GetOrders(ctx context.Context) ([]models.Order, error) {
 	const q1 = `select id from public.orders`
 

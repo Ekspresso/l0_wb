@@ -21,6 +21,7 @@ func New(svc service.Service) Handler {
 	return Handler{svc: svc}
 }
 
+//Метод сервиса для обработки POST запроса и возвращения ответа в виде json данных по заказу по id
 func (h Handler) GetOrderHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -54,6 +55,7 @@ func (h Handler) GetOrderHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(respbody)
 }
 
+//Метод для обработки полученной формы и последующим выводом на экран данных по запрошенному id
 func (h Handler) IdOrder(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -62,7 +64,10 @@ func (h Handler) IdOrder(w http.ResponseWriter, r *http.Request) {
 
 	var id int
 
-	id, _ = strconv.Atoi(r.FormValue("id"))
+	id, err := strconv.Atoi(r.FormValue("id"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	order, err := h.svc.GetOrderByID(r.Context(), id)
 	if err != nil {
@@ -79,6 +84,7 @@ func (h Handler) IdOrder(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", respbody)
 }
 
+//Метод обработки данных из канала Nats-streaming. Создаёт новый заказ в бд.
 func (h Handler) CreateOrder(msg *stan.Msg) {
 	var order models.Order
 	if err := json.Unmarshal(msg.Data, &order); err != nil {
