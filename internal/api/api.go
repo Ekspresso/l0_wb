@@ -3,10 +3,12 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"l0/internal/models"
 	"l0/internal/service"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/nats-io/stan.go"
 )
@@ -48,7 +50,33 @@ func (h Handler) GetOrderHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	w.Write(respbody)
+}
+
+func (h Handler) IdOrder(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	var id int
+
+	id, _ = strconv.Atoi(r.FormValue("id"))
+
+	order, err := h.svc.GetOrderByID(r.Context(), id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	respbody, err := json.Marshal(order)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "%s", respbody)
 }
 
 func (h Handler) CreateOrder(msg *stan.Msg) {

@@ -45,7 +45,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "form.html")
+	})
+
+	http.HandleFunc("/id-order", h.IdOrder)
+
 	http.HandleFunc("/get-order", h.GetOrderHandler)
+
 	if err = http.ListenAndServe("localhost:8080", nil); err != nil {
 		log.Fatal(err)
 	}
